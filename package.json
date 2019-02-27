@@ -4,8 +4,8 @@
     "pretest": "eslint .",
     "test": "jest"
   },
-  "description": "A javascript helper class for strings",
-  "version": "0.1.0",
+  "description": "Cleanly verify data in Parse-Server hooks and functions",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/panda-clouds/parse-data.git"
@@ -20,12 +20,11 @@
   "engines": {
     "node": ">= 8"
   },
-  "dependencies": {
-    "eslint": "^5.14.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@panda-clouds/eslint-config-panda-clouds": "^0.9.0",
     "@panda-clouds/parse-runner": "^0.1.0",
-    "jest": "^24.1.0"
+    "jest": "^24.1.0",
+    "eslint": "^5.14.1"
   }
 }

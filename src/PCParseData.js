@@ -131,7 +131,7 @@ class PCParseData {
 		throw new Error('The property ' + this.prop + ' must be in the future');
 	}
 
-	static passUser(request) {
+	static pass(request) {
 		const dic = {};
 
 		if (request.user && request.user.getSessionToken()) {
