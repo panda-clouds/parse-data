@@ -131,6 +131,26 @@ class PCParseData {
 		throw new Error('The property ' + this.prop + ' must be in the future');
 	}
 
+	mustBeBefore(propName) {
+		const dateA = this.request.object.get(this.prop);
+		const dateB = this.request.object.get(propName);
+
+		if (!PCParseData.isDate(dateA)) {
+			throw new Error('The property ' + this.prop + ' must be a date');
+		}
+
+		if (!PCParseData.isDate(dateB)) {
+			throw new Error('The property ' + propName + ' must be a date');
+		}
+
+		if (dateB > dateA) {
+			// B is after A
+			return false;
+		}
+
+		throw new Error('The property ' + this.prop + ' must be before property ' + propName);
+	}
+
 	static pass(request) {
 		const dic = {};
 

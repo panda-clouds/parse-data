@@ -190,6 +190,81 @@ function coreTests(coreObject, differentObject) {
 			expect(result2.id).toHaveLength(10);
 		});
 	});
+
+	fdescribe('mustBeBefore', () => {
+		it('should fail if start is not a date', async () => {
+			expect.assertions(3);
+
+			// no end set.
+			let obj = new Parse.Object('MustBeBefore');
+
+			obj.set('start', 12);
+
+			await expect(obj.save()).rejects.toThrow('The property start must be a date');
+
+			// end is set to a date.
+			obj = new Parse.Object('MustBeBefore');
+
+			obj.set('start', 12);
+			obj.set('end', new Date());
+
+			await expect(obj.save()).rejects.toThrow('The property start must be a date');
+
+			// end is set to a not date.
+			obj.set('start', 12);
+			obj.set('end', 12);
+
+			await expect(obj.save()).rejects.toThrow('The property start must be a date');
+		});
+
+		it('should fail if end is a date', async () => {
+			expect.assertions(1);
+
+			const obj = new Parse.Object('MustBeBefore');
+
+			obj.set('start', new Date());
+			obj.set('end', 12);
+
+			await expect(obj.save()).rejects.toThrow('The property end must be a date');
+		});
+
+		it('should fail if start is after end', async () => {
+			expect.assertions(1);
+
+			const obj = new Parse.Object('MustBeBefore');
+
+			obj.set('start', new Date('2019-09-16T00:00:00'));
+			obj.set('end', new Date('2019-09-15T00:00:00'));
+
+			await expect(obj.save()).rejects.toThrow('The property start must be before property end');
+		});
+
+		it('should fail if start is the same as end', async () => {
+			expect.assertions(1);
+
+			const obj = new Parse.Object('MustBeBefore');
+
+			obj.set('start', new Date('2019-09-16T00:00:00'));
+			obj.set('end', new Date('2019-09-15T00:00:00'));
+
+			await expect(obj.save()).rejects.toThrow('The property start must be before property end');
+		});
+
+		it('should pass if start is before end', async () => {
+			expect.assertions(1);
+
+			const obj = new Parse.Object('MustBeBefore');
+
+			obj.set('start', new Date('2019-09-16T00:00:00'));
+			obj.set('end', new Date('2019-09-17T00:00:00'));
+
+			const result = await obj.save();
+
+			console.log(JSON.stringify(result, null, 2));
+
+			expect(result).toBeDefined();
+		});
+	});
 }
 function allTests(version, cloud) {
 	describe('parse Server v' + version, () => {
@@ -257,7 +332,12 @@ Parse.Cloud.beforeSave('MustNotChange', request =>{
 Parse.Cloud.beforeSave('MustExistAndMustNotChange',(request,response)=>{
 	const data = new PCData(request);
 	data.prop('myProp').mustExist().mustNotChange();
-})
+});
+
+Parse.Cloud.beforeSave('MustBeBefore', request => {
+	const data = new PCData(request);
+	data.prop('start').mustBeBefore('end');
+});
 `;
 
 allTests('3.1.3', cloudV3);
