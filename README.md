@@ -85,6 +85,8 @@ Parse.Cloud.beforeSave('Book', request =>{
 
 Requires that the property be before the property specified by propName.
 
+Note: only supported in Parse v3.
+
 Example:
 
 ```javascript
