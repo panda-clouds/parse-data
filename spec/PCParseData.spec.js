@@ -5,7 +5,12 @@ const myProp = 'myProp';
 const mustNotChangeError = 'The property ' + myProp + ' must not change';
 const mustExistError = 'The property ' + myProp + ' must exist';
 
-function coreTests(coreObject, differentObject) {
+const supports = {
+	'3.1.3': ['mustExist', 'mustNotChange', 'mustExistChainedMustNotChange', 'mustBeBefore'],
+	'2.8.4': ['mustExist', 'mustNotChange', 'mustExistChainedMustNotChange'],
+};
+
+function testMustExists(coreObject) {
 	describe('mustExist', () => {
 		it('should pass when it exists', async () => {
 			expect.assertions(1);
@@ -33,7 +38,9 @@ function coreTests(coreObject, differentObject) {
 			}
 		});
 	});
+}
 
+function testMustNotChange(coreObject, differentObject) {
 	describe('mustNotChange', () => {
 		it('should pass when it doesnt change', async () => {
 			expect.assertions(2);
@@ -107,6 +114,10 @@ function coreTests(coreObject, differentObject) {
 			expect(result2.id).toHaveLength(10);
 		});
 	});
+}
+
+function testMustExistChainedMustNotChange(coreObject, differentObject) {
+	console.log('long boy');
 
 	describe('mustExist Chained to MustNotChange', () => {
 		it('should pass when it exists', async () => {
@@ -190,8 +201,10 @@ function coreTests(coreObject, differentObject) {
 			expect(result2.id).toHaveLength(10);
 		});
 	});
+}
 
-	fdescribe('mustBeBefore', () => {
+function testMustBeBefore() {
+	describe('mustBeBefore', () => {
 		it('should fail if start is not a date', async () => {
 			expect.assertions(3);
 
@@ -260,13 +273,13 @@ function coreTests(coreObject, differentObject) {
 
 			const result = await obj.save();
 
-			console.log(JSON.stringify(result, null, 2));
-
 			expect(result).toBeDefined();
 		});
 	});
 }
-function allTests(version, cloud) {
+
+
+function versionTests(version, cloud) {
 	describe('parse Server v' + version, () => {
 		const parseRunner = new PCParseRunner();
 
@@ -296,15 +309,65 @@ function allTests(version, cloud) {
 				expect(result).not.toBe('superman');
 			});
 		});
-		describe('string', () => {
-			coreTests('core', 'different');
-		});
-		describe('date', () => {
-			coreTests(new Date(), new Date(123456789));
-		});
+
+		const tests = supports[version];
+
+		for (let i = 0; i < tests.length; ++i) {
+			console.log('tests i: ' + tests[i]);
+			describe(tests[i], () => {
+				let string_wrapper = null;
+				let date_wrapper = null;
+
+				switch (tests[i]) {
+					case 'mustExist':
+						string_wrapper = (() => {
+							testMustExists('core');
+						});
+						date_wrapper = (() => {
+							testMustExists(new Date());
+						});
+
+						break;
+					case 'mustNotChange':
+						string_wrapper = (() => {
+							testMustNotChange('core', 'different');
+						});
+						date_wrapper = (() => {
+							testMustNotChange(new Date(), new Date(123456789));
+						});
+
+						break;
+					case 'mustExistChainedMustNotChange':
+						string_wrapper = (() => {
+							testMustExistChainedMustNotChange('core', 'different');
+						});
+						date_wrapper = (() => {
+							testMustExistChainedMustNotChange(new Date(), new Date(123456789));
+						});
+
+						break;
+					case 'mustBeBefore':
+						date_wrapper = (() => {
+							testMustBeBefore();
+						});
+						break;
+				}
+
+				if (string_wrapper) {
+					describe('string', () => {
+						string_wrapper();
+					});
+				}
+
+				if (date_wrapper) {
+					describe('date', () => {
+						date_wrapper();
+					});
+				}
+			});
+		}
 	});
 }
-
 
 const cloudV3 =
 `
@@ -340,7 +403,7 @@ Parse.Cloud.beforeSave('MustBeBefore', request => {
 });
 `;
 
-allTests('3.1.3', cloudV3);
+versionTests('3.1.3', cloudV3);
 
 const cloudV2 =
 `
@@ -408,5 +471,5 @@ Parse.Cloud.beforeSave('MustNotChange', (request, response) => {
 });
 `;
 
-allTests('2.8.4', cloudV2);
+versionTests('2.8.4', cloudV2);
 
