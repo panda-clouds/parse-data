@@ -5,15 +5,15 @@ class PCParseData {
 	}
 
 	prop(prop) {
-		this.prop = prop;
+		this.property = prop;
 
 		return this;
 	}
 
 	existsOnCurrent() {
 		const obj = this.request.object;
-		const prop = obj.get(this.prop);
-		const has = obj.has(this.prop);
+		const prop = obj.get(this.property);
+		const has = obj.has(this.property);
 
 		if (!has || prop === null) {
 			return false;
@@ -28,8 +28,8 @@ class PCParseData {
 			return false;
 		}
 
-		const has = orig.has(this.prop);
-		const prop = orig.get(this.prop);
+		const has = orig.has(this.property);
+		const prop = orig.get(this.property);
 
 		if (!has || prop === null) {
 			return false;
@@ -59,8 +59,8 @@ class PCParseData {
 			// Therefore we can't compare
 			return false;
 		} else {
-			const orig = this.request.original.get(this.prop);
-			const obj = this.request.object.get(this.prop);
+			const orig = this.request.original.get(this.property);
+			const obj = this.request.object.get(this.property);
 
 
 			if (PCParseData.isDate(orig) && PCParseData.isDate(obj)) {
@@ -98,7 +98,7 @@ class PCParseData {
 	mustExist() {
 		if (!this.exists()) {
 			// The property 'username' must exist
-			throw new Error('The property ' + this.prop + ' must exist');
+			throw new Error('The property ' + this.property + ' must exist');
 		}
 
 		return this;
@@ -107,19 +107,19 @@ class PCParseData {
 	mustNotChange() {
 		if (this.changed()) {
 			// The property 'username' can't be changed
-			throw new Error('The property ' + this.prop + ' must not change');
+			throw new Error('The property ' + this.property + ' must not change');
 		}
 
 		return this;
 	}
 
 	mustBeInFuture() {
-		const date = this.request.object.get(this.prop);
+		const date = this.request.object.get(this.property);
 		const now = new Date();
 
 		if (!PCParseData.isDate(date)) {
 			// The property 'startTime' must be a date
-			throw new Error('The property ' + this.prop + ' must be a date');
+			throw new Error('The property ' + this.property + ' must be a date');
 		}
 
 		if (date > now) {
@@ -128,7 +128,27 @@ class PCParseData {
 		}
 
 		// The property 'startTime' must be in the future
-		throw new Error('The property ' + this.prop + ' must be in the future');
+		throw new Error('The property ' + this.property + ' must be in the future');
+	}
+
+	mustBeBefore(propName) {
+		const dateA = this.request.object.get(this.property);
+		const dateB = this.request.object.get(propName);
+
+		if (!PCParseData.isDate(dateA)) {
+			throw new Error('The property ' + this.property + ' must be a date');
+		}
+
+		if (!PCParseData.isDate(dateB)) {
+			throw new Error('The property ' + propName + ' must be a date');
+		}
+
+		if (dateB > dateA) {
+			// B is after A
+			return false;
+		}
+
+		throw new Error('The property ' + this.property + ' must be before property ' + propName);
 	}
 
 	mustBeBefore(propName) {
