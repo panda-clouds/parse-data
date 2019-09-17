@@ -81,6 +81,22 @@ Parse.Cloud.beforeSave('Book', request =>{
 });
 ```
 
+### - mustBeBefore(propName)
+
+Requires that the property be before the property specified by propName.
+
+Note: only supported in Parse v3.
+
+Example:
+
+```javascript
+Parse.Cloud.beforeSave('TimePeriod', request => {
+	const data = new PCData(request);
+
+	data.prop('start').mustBeBefore('end');	// will throw Error if start or end are not Date objects or if start is not before end.
+});
+````
+
 
 Contributions
 -------------
@@ -99,6 +115,7 @@ Pull requests are welcome! here is a checklist to speed things up:
 (Add your name)
 
 - [*] [Marc Smith](https://github.com/mrmarcsmith)
+- [*] [Scott Runyon](https://github.com/east-empire)
 
 
 [Unit Tests]: https://github.com/panda-clouds/string/blob/master/spec/PCData.spec.js
