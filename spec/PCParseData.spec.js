@@ -6,7 +6,7 @@ const mustNotChangeError = 'The property ' + myProp + ' must not change';
 const mustExistError = 'The property ' + myProp + ' must exist';
 
 const supports = {
-	'3.1.3': ['mustExist', 'mustNotChange', 'mustExistChainedMustNotChange', 'mustBeBefore'],
+	'3.1.3': ['mustExist', 'mustNotChange', 'mustExistChainedMustNotChange', 'mustBeBefore', 'ptrMustNotChange'],
 	'2.8.4': ['mustExist', 'mustNotChange', 'mustExistChainedMustNotChange'],
 };
 
@@ -276,6 +276,88 @@ function testMustBeBefore() {
 	});
 }
 
+function testPtrMustNotChange() {
+	describe('isParsePtr', () => {
+		it('should error if the pointer is tried to change.', async () => {
+			expect.assertions(1);
+
+			// create the object for the pointer
+			let peter = new Parse.Object('parsePtr');
+
+			peter.set('property', 'string');
+
+			peter = await peter.save();
+
+			let otherPtr = new Parse.Object('parsePtr');
+
+			otherPtr.set('property', 'string');
+
+			otherPtr = await otherPtr.save();
+
+
+			let obj = new Parse.Object('PtrMustNotChange');
+
+			obj.set('ptr', peter.toPointer());
+			obj.set('otherProp', 'first');
+
+			obj = await obj.save();
+
+			// change other prop
+			obj.set('ptr', otherPtr.toPointer());
+
+			await expect(obj.save()).rejects.toThrow('The property ptr must not change');
+		});
+
+		it('should be able to save if a different prop is changed', async () => {
+			expect.assertions(1);
+
+			// create the object for the pointer
+			let peter = new Parse.Object('parsePtr');
+
+			peter.set('property', 'string');
+
+			peter = await peter.save();
+
+			let obj = new Parse.Object('PtrMustNotChange');
+
+			obj.set('ptr', peter.toPointer());
+			obj.set('otherProp', 'first');
+
+			obj = await obj.save();
+
+			// change other prop
+			obj.set('otherProp', 'second');
+
+			obj = await obj.save();
+
+			expect(obj).toBeDefined();
+		});
+
+		it('should be able to save if the prop is set to the same value', async () => {
+			expect.assertions(1);
+
+			// create the object for the pointer
+			let peter = new Parse.Object('parsePtr');
+
+			peter.set('property', 'string');
+
+			peter = await peter.save();
+
+			let obj = new Parse.Object('PtrMustNotChange');
+
+			obj.set('ptr', peter.toPointer());
+
+			obj = await obj.save();
+
+			// change other prop
+			obj.set('ptr', peter.toPointer());
+
+			obj = await obj.save();
+
+			expect(obj).toBeDefined();
+		});
+	});
+}
 
 function versionTests(version, cloud) {
 	describe('parse Server v' + version, () => {
@@ -314,6 +396,7 @@ function versionTests(version, cloud) {
 			describe(tests[i], () => {
 				let string_wrapper = null;
 				let date_wrapper = null;
+				let other_wrapper = null;
 
 				switch (tests[i]) {
 					case 'mustExist':
@@ -344,10 +427,14 @@ function versionTests(version, cloud) {
 
 						break;
 					case 'mustBeBefore':
-						date_wrapper = (() => {
+						other_wrapper = (() => {
 							testMustBeBefore();
 						});
 						break;
+					case 'ptrMustNotChange':
+						other_wrapper = (() => {
+							testPtrMustNotChange();
+						});
 				}
 
 				if (string_wrapper) {
@@ -359,6 +446,12 @@ function versionTests(version, cloud) {
 				if (date_wrapper) {
 					describe('date', () => {
 						date_wrapper();
+					});
+				}
+
+				if (other_wrapper) {
+					describe('other', () => {
+						other_wrapper();
 					});
 				}
 			});
@@ -397,6 +490,11 @@ Parse.Cloud.beforeSave('MustExistAndMustNotChange',(request,response)=>{
 Parse.Cloud.beforeSave('MustBeBefore', request => {
 	const data = new PCData(request);
 	data.prop('start').mustBeBefore('end');
+});
+
+Parse.Cloud.beforeSave('PtrMustNotChange', request => {
+	const data = new PCData(request);
+	data.prop('ptr').mustNotChange();
 });
 `;
 

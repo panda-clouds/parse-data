@@ -72,6 +72,14 @@ class PCParseData {
 				return true;
 			}
 
+			if (PCParseData.isParsePtr(orig) && PCParseData.isParsePtr(obj)) {
+				if ((orig.className === obj.className) && (orig.id === obj.id)) {
+					return false;
+				}
+
+				return true;
+			}
+
 			if (orig === obj) {
 				return false;
 			}
@@ -83,6 +91,11 @@ class PCParseData {
 	static isDate(maybeDate) {
 		return maybeDate instanceof Date && !isNaN(maybeDate.valueOf()) && maybeDate.getTime;
 	}
+
+	static isParsePtr(maybePtr) {
+		return maybePtr instanceof Parse.Object;
+	}
+
 	// Error functions
 	//
 	// These functions throw an error if needed
