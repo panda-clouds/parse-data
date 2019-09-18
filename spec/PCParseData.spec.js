@@ -117,8 +117,6 @@ function testMustNotChange(coreObject, differentObject) {
 }
 
 function testMustExistChainedMustNotChange(coreObject, differentObject) {
-	console.log('long boy');
-
 	describe('mustExist Chained to MustNotChange', () => {
 		it('should pass when it exists', async () => {
 			expect.assertions(1);
@@ -313,7 +311,6 @@ function versionTests(version, cloud) {
 		const tests = supports[version];
 
 		for (let i = 0; i < tests.length; ++i) {
-			console.log('tests i: ' + tests[i]);
 			describe(tests[i], () => {
 				let string_wrapper = null;
 				let date_wrapper = null;
