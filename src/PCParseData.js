@@ -137,7 +137,7 @@ class PCParseData {
 
 		if (date > now) {
 			// selected date is in the future
-			return false;
+			return this;
 		}
 
 		// The property 'startTime' must be in the future
@@ -158,7 +158,7 @@ class PCParseData {
 
 		if (dateB > dateA) {
 			// B is after A
-			return false;
+			return this;
 		}
 
 		throw new Error('The property ' + this.property + ' must be before property ' + propName);

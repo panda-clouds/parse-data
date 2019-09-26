@@ -5,7 +5,7 @@
     "test": "jest"
   },
   "description": "Cleanly verify data in Parse-Server hooks and functions",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/panda-clouds/parse-data.git"
