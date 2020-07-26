@@ -54,6 +54,7 @@ class PCParseData {
 			// we haven't set anything yet
 			// AND
 			// we haven't 'unset' the object
+			return false;
 		} else if (!this.existsOnOriginal()) {
 			// we don't have an original
 			// Therefore we can't compare
